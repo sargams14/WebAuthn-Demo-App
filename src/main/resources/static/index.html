@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebAuthn Demo</title>
+    <style>
+        :root {
+            color-scheme: light;
+        }
+        body {
+            margin: 0;
+            font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+            background: radial-gradient(circle at top left, #f6f4ff 0%, #fdfcf8 45%, #f4faf8 100%);
+            color: #1f1f24;
+        }
+        main {
+            max-width: 880px;
+            margin: 40px auto;
+            padding: 0 20px 40px;
+        }
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 8px;
+        }
+        p {
+            margin-top: 0;
+            line-height: 1.6;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 12px 30px rgba(31, 31, 36, 0.08);
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #d9d7e7;
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+        button {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 16px;
+            background: #1f6feb;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(31, 111, 235, 0.25);
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #log {
+            background: #15151b;
+            color: #e8e8f0;
+            padding: 16px;
+            border-radius: 12px;
+            min-height: 140px;
+            white-space: pre-wrap;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        .note {
+            font-size: 0.95rem;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <h1>WebAuthn Demo</h1>
+    <p class="note">Register a passkey for a username, then authenticate. This demo stores data in-memory, so restart clears everything.</p>
+
+    <div class="grid">
+        <section class="card">
+            <h2>Register</h2>
+            <label for="register-username">Username</label>
+            <input id="register-username" type="text" placeholder="alice" autocomplete="username" />
+            <button id="register-button">Create Passkey</button>
+        </section>
+
+        <section class="card">
+            <h2>Authenticate</h2>
+            <label for="auth-username">Username</label>
+            <input id="auth-username" type="text" placeholder="alice" autocomplete="username" />
+            <button id="auth-button">Use Passkey</button>
+        </section>
+    </div>
+
+    <pre id="log">Ready.</pre>
+</main>
+
+<script src="webauthn.js"></script>
+<script src="register.js"></script>
+<script src="auth.js"></script>
+</body>
+</html>
