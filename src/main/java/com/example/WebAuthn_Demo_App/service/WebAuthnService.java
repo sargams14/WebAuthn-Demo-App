@@ -2,13 +2,13 @@ package com.example.WebAuthn_Demo_App.service;
 
 import com.example.WebAuthn_Demo_App.model.Credential;
 import com.example.WebAuthn_Demo_App.model.User;
-import com.example.WebAuthn_Demo_App.web.dto.AuthenticationFinishRequest;
-import com.example.WebAuthn_Demo_App.web.dto.RegistrationFinishRequest;
+import com.example.WebAuthn_Demo_App.dto.AuthenticationFinishRequest;
+import com.example.WebAuthn_Demo_App.dto.RegistrationFinishRequest;
 import com.example.WebAuthn_Demo_App.store.ChallengeStore;
 import com.example.WebAuthn_Demo_App.store.CredentialStore;
 import com.example.WebAuthn_Demo_App.store.UserStore;
 import com.webauthn4j.WebAuthnManager;
-import com.webauthn4j.authenticator.AuthenticatorImpl;
+import com.webauthn4j.credential.CredentialRecordImpl;
 import com.webauthn4j.data.AuthenticationData;
 import com.webauthn4j.data.AuthenticationParameters;
 import com.webauthn4j.data.AuthenticationRequest;
@@ -112,11 +112,12 @@ public class WebAuthnService {
                 Base64UrlUtil.decode(response.getClientDataJSON())
         );
 
-        ServerProperty serverProperty = new ServerProperty(
-                Origin.create(rpOrigin),
-                rpId,
-                new DefaultChallenge(challenge)
-        );
+        ServerProperty serverProperty =
+                ServerProperty.builder()
+                        .origin(Origin.create(rpOrigin))
+                        .rpId(rpId)
+                        .challenge(new DefaultChallenge(challenge))
+                        .build();
 
         RegistrationParameters parameters = new RegistrationParameters(
                 serverProperty,
@@ -124,16 +125,15 @@ public class WebAuthnService {
                 false
         );
 
-        RegistrationData registrationData = webAuthnManager.validate(registrationRequest, parameters);
-        byte[] credentialId = registrationData.getAttestationObject()
-                .getAuthenticatorData()
-                .getAttestedCredentialData()
-                .getCredentialId();
+        RegistrationData registrationData = webAuthnManager.verify(registrationRequest, parameters);
+        CredentialRecordImpl credentialRecord = new CredentialRecordImpl(
+                registrationData.getAttestationObject(),
+                registrationData.getCollectedClientData(),
+                registrationData.getClientExtensions(),
+                registrationData.getTransports()
+        );
 
-        credentialStore.save(username, new Credential(
-                credentialId,
-                AuthenticatorImpl.createFromRegistrationData(registrationData)
-        ));
+        credentialStore.save(username, new Credential(credentialRecord));
     }
 
     public Map<String, Object> startAuthentication(String username) {
@@ -193,21 +193,22 @@ public class WebAuthnService {
                 Base64UrlUtil.decode(response.getSignature())
         );
 
-        ServerProperty serverProperty = new ServerProperty(
-                Origin.create(rpOrigin),
-                rpId,
-                new DefaultChallenge(challenge)
-        );
+        ServerProperty serverProperty =
+                ServerProperty.builder()
+                        .origin(Origin.create(rpOrigin))
+                        .rpId(rpId)
+                        .challenge(new DefaultChallenge(challenge))
+                        .build();
 
         AuthenticationParameters parameters = new AuthenticationParameters(
                 serverProperty,
-                credential.getAuthenticator(),
+                credential.getRecord(),
                 List.of(credential.getCredentialId()),
                 false
         );
 
-        AuthenticationData authenticationData = webAuthnManager.validate(authenticationRequest, parameters);
-        credential.getAuthenticator().setCounter(authenticationData.getAuthenticatorData().getSignCount());
+        AuthenticationData authenticationData = webAuthnManager.verify(authenticationRequest, parameters);
+        credential.getRecord().setCounter(authenticationData.getAuthenticatorData().getSignCount());
     }
 
     private byte[] newChallenge() {

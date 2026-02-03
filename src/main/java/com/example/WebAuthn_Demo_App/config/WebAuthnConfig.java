@@ -10,19 +10,16 @@ public class WebAuthnConfig {
 
     @Bean
     public WebAuthnManager webAuthnManager() {
-        // Non-strict manager simplifies attestation for PoC.
         return WebAuthnManager.createNonStrictWebAuthnManager();
     }
 
     @Bean
     public String relyingPartyId(@Value("${webauthn.rp.id:localhost}") String rpId) {
-        // rpId must match what the browser sends (domain). For localhost PoC use "localhost"
         return rpId;
     }
 
     @Bean
     public String relyingPartyOrigin(@Value("${webauthn.rp.origin:http://localhost:8080}") String rpOrigin) {
-        // the exact origin your frontend will run on (include scheme + port)
         return rpOrigin;
     }
 

@@ -1,4 +1,4 @@
-package com.example.WebAuthn_Demo_App.web.dto;
+package com.example.WebAuthn_Demo_App.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
